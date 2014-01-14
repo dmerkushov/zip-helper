@@ -21,7 +21,7 @@ import java.util.zip.ZipOutputStream;
 import ru.dmerkushov.loghelper.LoggerWrapper;
 
 /**
- *
+ * A helper class to help use small ZIP files that can fit in the RAM completely. For such files, use of streaming interface provided by Java is excessive, so this provides a simple direct-access interface.
  * @author Dmitriy Merkushov
  */
 public class ZipHelper {
@@ -40,7 +40,7 @@ public class ZipHelper {
 	}
 
 	/**
-	 * Create an instance from a ZIP file
+	 * Create an instance from a ZIP file. The file is unzipped during processing, so it may come to be too large.
 	 *
 	 * @param file if null, an empty instance is created
 	 * @throws java.io.FileNotFoundException
@@ -140,7 +140,7 @@ public class ZipHelper {
 	 * @throws java.io.FileNotFoundException
 	 * @throws java.io.IOException
 	 */
-	public synchronized File save (File file) throws FileNotFoundException, IOException {
+	public synchronized File saveZip (File file) throws FileNotFoundException, IOException {
 		loggerWrapper.entering (file);
 
 		if (file == null) {
@@ -150,6 +150,9 @@ public class ZipHelper {
 		if (!file.exists ()) {
 			file.createNewFile ();
 			loggerWrapper.info ("File " + file.getAbsolutePath () + " did not exist, have created");
+		}
+		if (!file.canWrite ()) {
+			throw new IOException ("Cannot write to " + file.getAbsolutePath ());
 		}
 
 		try (FileOutputStream fos = new FileOutputStream (file)) {
